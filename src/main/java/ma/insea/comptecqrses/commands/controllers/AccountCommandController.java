@@ -2,7 +2,9 @@ package ma.insea.comptecqrses.commands.controllers;
 
 import lombok.AllArgsConstructor;
 import ma.insea.comptecqrses.commonapi.commands.CreateAccountCommand;
+import ma.insea.comptecqrses.commonapi.commands.CreditAccountCommand;
 import ma.insea.comptecqrses.dtos.CreateAccountRequestDTO;
+import ma.insea.comptecqrses.dtos.CreditAccountRequestDTO;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.springframework.http.HttpStatus;
@@ -20,16 +22,26 @@ public class AccountCommandController {
 
     private CommandGateway commandGateway;
     private EventStore eventStore;
+
     @PostMapping(path="/create")
     @ResponseStatus(HttpStatus.CREATED)
-
-    public CompletableFuture<String> createAccount(@RequestBody CreateAccountRequestDTO request){
+    public CompletableFuture<String> creditAccount(@RequestBody CreateAccountRequestDTO request){
         CompletableFuture<String> responseCommand = commandGateway.send( new CreateAccountCommand(
                 UUID.randomUUID().toString().replace("-","").substring(8,17),
                 request.getAmount(),
                 request.getCurrency()
         ));
      return responseCommand;
+    }
+
+    @PutMapping(path="/credit")
+    public CompletableFuture<String> createAccount(@RequestBody CreditAccountRequestDTO request){
+        CompletableFuture<String> responseCommand = commandGateway.send( new CreditAccountCommand(
+                request.getAccountId(),
+                request.getAmount(),
+                request.getCurrency()
+        ));
+        return responseCommand;
     }
 
     @GetMapping("/eventStore/{accountId}")
