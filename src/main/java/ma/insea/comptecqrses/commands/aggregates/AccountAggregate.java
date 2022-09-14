@@ -1,9 +1,13 @@
 package ma.insea.comptecqrses.commands.aggregates;
 
 import ma.insea.comptecqrses.commonapi.commands.CreateAccountCommand;
+import ma.insea.comptecqrses.commonapi.commands.CreditAccountCommand;
 import ma.insea.comptecqrses.commonapi.enums.AccountStatus;
 import ma.insea.comptecqrses.commonapi.events.AccountActivatedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountCreatedEvent;
+import ma.insea.comptecqrses.commonapi.events.AccountCreditedEvent;
+import ma.insea.comptecqrses.commonapi.exceptions.CannotCreateAccountException;
+import ma.insea.comptecqrses.commonapi.exceptions.NegativeAmountException;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -24,12 +28,25 @@ public class AccountAggregate {
     @CommandHandler
     public AccountAggregate(CreateAccountCommand createAccountCommand) {
         if(createAccountCommand.getInitialBalance()<0){
-            throw new RuntimeException("Cannot create account ! negative balance");
+            throw new CannotCreateAccountException("Cannot create account ! negative balance");
         }
         AggregateLifecycle.apply(new AccountCreatedEvent(createAccountCommand.getId(),
                 createAccountCommand.getInitialBalance(),
                 createAccountCommand.getCurrency()));
     }
+
+    @CommandHandler
+    public void handle(CreditAccountCommand creditAccountCommand){
+        if(creditAccountCommand.getAmount()<0){
+            throw new NegativeAmountException("Cannot credit account ! negative amount ");
+        }
+        AggregateLifecycle.apply(new AccountCreditedEvent(
+                creditAccountCommand.getId(),
+                creditAccountCommand.getAmount(),
+                creditAccountCommand.getCurrency()
+        ));
+    }
+
     @EventSourcingHandler
     public void on(AccountCreatedEvent event){
         this.accountId=event.getId();
@@ -43,4 +60,11 @@ public class AccountAggregate {
     public void on(AccountActivatedEvent event){
         this.status=event.getStatus();
 }
+
+    @EventSourcingHandler
+    public void on(AccountCreditedEvent event){
+        this.balance+=event.getAmount();
+    }
+
+
 }

@@ -1,8 +1,6 @@
 package ma.insea.comptecqrses.commonapi.commands;
 
 import lombok.Getter;
-import lombok.Setter;
-
 
 public class CreateAccountCommand extends BaseCommand<String> {
     @Getter private double initialBalance;
