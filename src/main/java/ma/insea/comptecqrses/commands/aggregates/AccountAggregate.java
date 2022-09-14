@@ -2,6 +2,7 @@ package ma.insea.comptecqrses.commands.aggregates;
 
 import ma.insea.comptecqrses.commonapi.commands.CreateAccountCommand;
 import ma.insea.comptecqrses.commonapi.enums.AccountStatus;
+import ma.insea.comptecqrses.commonapi.events.AccountActivatedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountCreatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -35,5 +36,11 @@ public class AccountAggregate {
         this.balance=event.getInitialBalance();
         this.currency=event.getCurrency();
         this.status=AccountStatus.CREATED;
+        AggregateLifecycle.apply(new AccountActivatedEvent(event.getId(),AccountStatus.ACTIVATED));
     }
+
+    @EventSourcingHandler
+    public void on(AccountActivatedEvent event){
+        this.status=event.getStatus();
+}
 }
