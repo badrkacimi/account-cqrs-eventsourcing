@@ -4,12 +4,14 @@ import lombok.AllArgsConstructor;
 import ma.insea.comptecqrses.commonapi.commands.CreateAccountCommand;
 import ma.insea.comptecqrses.dtos.CreateAccountRequestDTO;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping(path = "/commands/account")
@@ -17,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class AccountCommandController {
 
     private CommandGateway commandGateway;
+    private EventStore eventStore;
     @PostMapping(path="/create")
     @ResponseStatus(HttpStatus.CREATED)
 
@@ -27,6 +30,11 @@ public class AccountCommandController {
                 request.getCurrency()
         ));
      return responseCommand;
+    }
+
+    @GetMapping("/eventStore/{accountId}")
+    public Stream getEventStore(@PathVariable String accountId) {
+        return eventStore.readEvents(accountId).asStream();
     }
 
     @ExceptionHandler(Exception.class)
