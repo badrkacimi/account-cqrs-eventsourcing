@@ -25,7 +25,7 @@ public class AccountCommandController {
 
     @PostMapping(path="/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public CompletableFuture<String> creditAccount(@RequestBody CreateAccountRequestDTO request){
+    public CompletableFuture<String> createAccount(@RequestBody CreateAccountRequestDTO request){
         CompletableFuture<String> responseCommand = commandGateway.send( new CreateAccountCommand(
                 UUID.randomUUID().toString().replace("-","").substring(8,17),
                 request.getAmount(),
@@ -35,7 +35,17 @@ public class AccountCommandController {
     }
 
     @PutMapping(path="/credit")
-    public CompletableFuture<String> createAccount(@RequestBody CreditAccountRequestDTO request){
+    public CompletableFuture<String> creditAccount(@RequestBody CreditAccountRequestDTO request){
+        CompletableFuture<String> responseCommand = commandGateway.send( new CreditAccountCommand(
+                request.getAccountId(),
+                request.getAmount(),
+                request.getCurrency()
+        ));
+        return responseCommand;
+    }
+
+    @PutMapping(path="/withdrawal")
+    public CompletableFuture<String> debitAccount(@RequestBody CreditAccountRequestDTO request){
         CompletableFuture<String> responseCommand = commandGateway.send( new CreditAccountCommand(
                 request.getAccountId(),
                 request.getAmount(),
