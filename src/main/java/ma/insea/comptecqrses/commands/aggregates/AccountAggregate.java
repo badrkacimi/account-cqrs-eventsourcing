@@ -2,11 +2,14 @@ package ma.insea.comptecqrses.commands.aggregates;
 
 import ma.insea.comptecqrses.commonapi.commands.CreateAccountCommand;
 import ma.insea.comptecqrses.commonapi.commands.CreditAccountCommand;
+import ma.insea.comptecqrses.commonapi.commands.WithdrawalAccountCommand;
 import ma.insea.comptecqrses.commonapi.enums.AccountStatus;
 import ma.insea.comptecqrses.commonapi.events.AccountActivatedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountCreatedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountCreditedEvent;
+import ma.insea.comptecqrses.commonapi.events.AccountWithdrawnEvent;
 import ma.insea.comptecqrses.commonapi.exceptions.CannotCreateAccountException;
+import ma.insea.comptecqrses.commonapi.exceptions.InsufficientBalanceException;
 import ma.insea.comptecqrses.commonapi.exceptions.NegativeAmountException;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -47,6 +50,18 @@ public class AccountAggregate {
         ));
     }
 
+    @CommandHandler
+    public void handle(WithdrawalAccountCommand withdrawalAccountCommand){
+        if(withdrawalAccountCommand.getAmount() > this.balance){
+            throw new InsufficientBalanceException("Insufficient balance ! Your balance is :"+balance);
+        }
+        AggregateLifecycle.apply(new AccountWithdrawnEvent(
+                withdrawalAccountCommand.getId(),
+                withdrawalAccountCommand.getAmount(),
+                withdrawalAccountCommand.getCurrency()
+        ));
+    }
+
     @EventSourcingHandler
     public void on(AccountCreatedEvent event){
         this.accountId=event.getId();
@@ -66,5 +81,9 @@ public class AccountAggregate {
         this.balance+=event.getAmount();
     }
 
+    @EventSourcingHandler
+    public void on(AccountWithdrawnEvent event){
+        this.balance-=event.getAmount();
+    }
 
 }

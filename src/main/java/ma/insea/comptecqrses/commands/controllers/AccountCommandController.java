@@ -3,8 +3,10 @@ package ma.insea.comptecqrses.commands.controllers;
 import lombok.AllArgsConstructor;
 import ma.insea.comptecqrses.commonapi.commands.CreateAccountCommand;
 import ma.insea.comptecqrses.commonapi.commands.CreditAccountCommand;
+import ma.insea.comptecqrses.commonapi.commands.WithdrawalAccountCommand;
 import ma.insea.comptecqrses.dtos.CreateAccountRequestDTO;
 import ma.insea.comptecqrses.dtos.CreditAccountRequestDTO;
+import ma.insea.comptecqrses.dtos.WithdrawalAccountRequestDTO;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.springframework.http.HttpStatus;
@@ -45,8 +47,8 @@ public class AccountCommandController {
     }
 
     @PutMapping(path="/withdrawal")
-    public CompletableFuture<String> debitAccount(@RequestBody CreditAccountRequestDTO request){
-        CompletableFuture<String> responseCommand = commandGateway.send( new CreditAccountCommand(
+    public CompletableFuture<String> withdrawalAccount(@RequestBody WithdrawalAccountRequestDTO request){
+        CompletableFuture<String> responseCommand = commandGateway.send( new WithdrawalAccountCommand(
                 request.getAccountId(),
                 request.getAmount(),
                 request.getCurrency()
