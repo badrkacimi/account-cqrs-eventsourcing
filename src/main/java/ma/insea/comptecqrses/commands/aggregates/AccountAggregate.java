@@ -1,5 +1,6 @@
 package ma.insea.comptecqrses.commands.aggregates;
 
+import lombok.extern.slf4j.Slf4j;
 import ma.insea.comptecqrses.commonapi.commands.CreateAccountCommand;
 import ma.insea.comptecqrses.commonapi.commands.CreditAccountCommand;
 import ma.insea.comptecqrses.commonapi.commands.WithdrawalAccountCommand;
@@ -17,6 +18,9 @@ import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 
+import java.util.Date;
+
+@Slf4j
 @Aggregate
 public class AccountAggregate {
     @AggregateIdentifier
@@ -35,7 +39,10 @@ public class AccountAggregate {
         }
         AggregateLifecycle.apply(new AccountCreatedEvent(createAccountCommand.getId(),
                 createAccountCommand.getInitialBalance(),
-                createAccountCommand.getCurrency()));
+                createAccountCommand.getCurrency(),
+                AccountStatus.CREATED,
+                new Date()));
+        log.info("**** Account creation event published ! *****");
     }
 
     @CommandHandler
@@ -46,8 +53,9 @@ public class AccountAggregate {
         AggregateLifecycle.apply(new AccountCreditedEvent(
                 creditAccountCommand.getId(),
                 creditAccountCommand.getAmount(),
-                creditAccountCommand.getCurrency()
-        ));
+                creditAccountCommand.getCurrency(),
+                new Date()));
+        log.info("**** Account credit event published ! *****");
     }
 
     @CommandHandler
@@ -58,8 +66,11 @@ public class AccountAggregate {
         AggregateLifecycle.apply(new AccountWithdrawnEvent(
                 withdrawalAccountCommand.getId(),
                 withdrawalAccountCommand.getAmount(),
-                withdrawalAccountCommand.getCurrency()
+                withdrawalAccountCommand.getCurrency(),
+                new Date()
         ));
+        log.info("**** Account withdrawal event published ! *****");
+
     }
 
     @EventSourcingHandler
@@ -69,21 +80,29 @@ public class AccountAggregate {
         this.currency=event.getCurrency();
         this.status=AccountStatus.CREATED;
         AggregateLifecycle.apply(new AccountActivatedEvent(event.getId(),AccountStatus.ACTIVATED));
+        log.info("**** Account creation event stored ! *****");
+
     }
 
     @EventSourcingHandler
     public void on(AccountActivatedEvent event){
         this.status=event.getStatus();
-}
+        log.info("**** Account activation event stored ! *****");
+
+    }
 
     @EventSourcingHandler
     public void on(AccountCreditedEvent event){
+
         this.balance+=event.getAmount();
+        log.info("**** Account credit event stored ! *****");
     }
 
     @EventSourcingHandler
     public void on(AccountWithdrawnEvent event){
+
         this.balance-=event.getAmount();
+        log.info("**** Account withdrawal event stored ! *****");
     }
 
 }
