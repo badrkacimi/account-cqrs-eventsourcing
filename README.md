@@ -1,11 +1,12 @@
 # cqrs - event sourcing simple project
 
 # Technical stack :
-* Docker for containerize the application
+* Axon for event-sourced Java application
 * Mapstruct for java bean mappings at compile-time.
+* Lombok  for code generation and minimizing boilerplate
+* Docker for containerize the application
 * MySQL as a database.
 * JaCoCo for test coverage report.
-* Axon for event-sourced Java application
 
 # Build project
 To build the project, run the maven command
