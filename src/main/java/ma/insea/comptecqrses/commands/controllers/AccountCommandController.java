@@ -1,6 +1,7 @@
 package ma.insea.comptecqrses.commands.controllers;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import ma.insea.comptecqrses.commonapi.commands.CreateAccountCommand;
 import ma.insea.comptecqrses.commonapi.commands.CreditAccountCommand;
 import ma.insea.comptecqrses.commonapi.commands.WithdrawalAccountCommand;
@@ -20,6 +21,7 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping(path = "/commands/account")
 @AllArgsConstructor
+@Slf4j
 public class AccountCommandController {
 
     private CommandGateway commandGateway;
@@ -48,7 +50,7 @@ public class AccountCommandController {
 
     @PutMapping(path="/withdrawal")
     public CompletableFuture<String> withdrawalAccount(@RequestBody WithdrawalAccountRequestDTO request){
-        CompletableFuture<String> responseCommand = commandGateway.send( new WithdrawalAccountCommand(
+        CompletableFuture<String> responseCommand = commandGateway.send(new WithdrawalAccountCommand(
                 request.getAccountId(),
                 request.getAmount(),
                 request.getCurrency()
