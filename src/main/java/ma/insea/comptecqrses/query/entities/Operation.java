@@ -1,5 +1,6 @@
 package ma.insea.comptecqrses.query.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class Operation {
     private Date operationDate;
     @Enumerated(EnumType.STRING)
     private OperationTypes operationType;
-    @ManyToOne(cascade = {CascadeType.PERSIST})
+    @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Account account;
 }

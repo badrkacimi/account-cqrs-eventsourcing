@@ -11,8 +11,8 @@
     <groupId>ma.insea</groupId>
     <artifactId>compte-cqrs-es</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>compte-cqrs-es</name>
-    <description>compte-cqrs-es</description>
+    <name>account-cqrs-es</name>
+    <description>account-cqrs-es</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
@@ -43,14 +43,24 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.4.2.final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.4.2.Final</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.axonframework</groupId>

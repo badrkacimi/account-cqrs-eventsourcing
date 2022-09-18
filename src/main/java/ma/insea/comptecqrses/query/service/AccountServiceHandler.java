@@ -2,22 +2,26 @@ package ma.insea.comptecqrses.query.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ma.insea.comptecqrses.commonapi.enums.AccountStatus;
 import ma.insea.comptecqrses.commonapi.enums.OperationTypes;
 import ma.insea.comptecqrses.commonapi.events.AccountActivatedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountCreatedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountCreditedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountWithdrawnEvent;
+import ma.insea.comptecqrses.commonapi.queries.GetAccountByIdQuery;
+import ma.insea.comptecqrses.commonapi.queries.GetAllAccountsQuery;
+import ma.insea.comptecqrses.query.dtos.AccountDTO;
 import ma.insea.comptecqrses.query.entities.Account;
 import ma.insea.comptecqrses.query.entities.Operation;
+import ma.insea.comptecqrses.query.mappers.AccountsMapper;
+import ma.insea.comptecqrses.query.mappers.OperationsMapper;
 import ma.insea.comptecqrses.query.repositories.AccountRepository;
 import ma.insea.comptecqrses.query.repositories.OperationRepository;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Date;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -27,6 +31,8 @@ public class AccountServiceHandler {
 
     private AccountRepository accountRepository;
     private OperationRepository operationRepository;
+    private AccountsMapper accountsMapper;
+    private OperationsMapper operationsMapper;
 
     @EventHandler
     public void on(AccountCreatedEvent event){
@@ -83,5 +89,21 @@ public class AccountServiceHandler {
             account.setBalance(account.getBalance() - event.getAmount());
             accountRepository.save(account);
         }
+    }
+
+    @QueryHandler
+    public List<AccountDTO> on(GetAllAccountsQuery query){
+        log.info("**** Get All accounts query executed ! *****");
+        List<Account> accounts = accountRepository.findAll();
+
+        return accountsMapper.accountToAccountDTO(accounts);
+    }
+
+    @QueryHandler
+    public AccountDTO on(GetAccountByIdQuery query){
+        log.info("**** Get account by Id query "+query.getId()+"executed ! *****");
+           Account account = accountRepository.findById(query.getId()).get();
+           return accountsMapper.accountToClientDto(account);
+
     }
 }

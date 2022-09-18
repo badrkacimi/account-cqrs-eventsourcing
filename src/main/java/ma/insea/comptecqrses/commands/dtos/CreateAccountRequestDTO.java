@@ -1,4 +1,4 @@
-package ma.insea.comptecqrses.dtos;
+package ma.insea.comptecqrses.commands.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
