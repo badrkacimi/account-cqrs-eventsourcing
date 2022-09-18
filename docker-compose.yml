@@ -1,0 +1,15 @@
+version: '2'
+services:
+  backend-technical-test:
+    container_name: backend-test-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: backend-test-server:latest
+    ports:
+      - 9999:9999
+    networks:
+      - test-cloud-network
+networks:
+  test-cloud-network:
+    driver: bridge
