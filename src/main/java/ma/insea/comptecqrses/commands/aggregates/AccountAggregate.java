@@ -95,14 +95,14 @@ public class AccountAggregate {
 
     @EventSourcingHandler
     public void on(AccountCreditedEvent event){
-
+        this.accountId=event.getId();
         this.balance+=event.getAmount();
         log.info("**** Account credit event stored ! *****");
     }
 
     @EventSourcingHandler
     public void on(AccountWithdrawnEvent event){
-
+        this.accountId=event.getId();
         this.balance-=event.getAmount();
         log.info("**** Account withdrawal event stored ! *****");
     }
