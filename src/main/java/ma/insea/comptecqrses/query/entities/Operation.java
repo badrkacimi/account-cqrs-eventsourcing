@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import ma.insea.comptecqrses.commonapi.enums.OperationTypes;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Operations")
@@ -21,7 +21,7 @@ public class Operation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private double amount;
-    private Date operationDate;
+    private LocalDateTime operationDate;
     @Enumerated(EnumType.STRING)
     private OperationTypes operationType;
     @ManyToOne

@@ -10,7 +10,6 @@ import ma.insea.comptecqrses.commonapi.events.AccountCreatedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountCreditedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountWithdrawnEvent;
 import ma.insea.comptecqrses.commonapi.exceptions.CannotCreateAccountException;
-import ma.insea.comptecqrses.commonapi.exceptions.InsufficientBalanceException;
 import ma.insea.comptecqrses.commonapi.exceptions.NegativeAmountException;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -18,7 +17,7 @@ import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Aggregate
@@ -28,6 +27,8 @@ public class AccountAggregate {
     private double balance;
     private String currency;
     private AccountStatus status;
+    private LocalDateTime NOW = LocalDateTime.of(2022,6,15, 12,30,30);
+
 
     public AccountAggregate() {
     }
@@ -41,7 +42,9 @@ public class AccountAggregate {
                 createAccountCommand.getInitialBalance(),
                 createAccountCommand.getCurrency(),
                 AccountStatus.CREATED,
-                new Date()));
+                NOW));
+        //LocalDateTime.now()));
+
         log.info("**** Account creation event published ! *****");
     }
 
@@ -54,21 +57,20 @@ public class AccountAggregate {
                 creditAccountCommand.getId(),
                 creditAccountCommand.getAmount(),
                 creditAccountCommand.getCurrency(),
-                new Date()));
+                NOW));
+        //LocalDateTime.now()));
+
         log.info("**** Account credit event published ! *****");
     }
 
     @CommandHandler
     public void handle(WithdrawalAccountCommand withdrawalAccountCommand){
-        if(withdrawalAccountCommand.getAmount() > this.balance){
-            throw new InsufficientBalanceException("Insufficient balance ! Your balance is :"+balance);
-        }
         AggregateLifecycle.apply(new AccountWithdrawnEvent(
                 withdrawalAccountCommand.getId(),
                 withdrawalAccountCommand.getAmount(),
                 withdrawalAccountCommand.getCurrency(),
-                new Date()
-        ));
+                NOW));
+                //LocalDateTime.now()));
         log.info("**** Account withdrawal event published ! *****");
 
     }
