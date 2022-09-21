@@ -8,8 +8,11 @@ import ma.insea.comptecqrses.commonapi.events.AccountActivatedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountCreatedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountCreditedEvent;
 import ma.insea.comptecqrses.commonapi.events.AccountWithdrawnEvent;
+import ma.insea.comptecqrses.commonapi.exceptions.CannotCreateAccountException;
+import ma.insea.comptecqrses.commonapi.exceptions.NegativeAmountException;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
+import org.axonframework.test.matchers.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +22,10 @@ import java.util.UUID;
 class AccountAggregateTest {
 
     private static final String ACCOUNT_ID = UUID.randomUUID().toString().replace("-", "").substring(8, 17);
+    private static final String NEGATIVE_BALANCE = "Cannot create account ! negative balance";
+    private static final String NEGATIVE_AMOUNT = "Cannot credit account ! negative amount";
+
+
     private FixtureConfiguration<AccountAggregate> fixture;
     LocalDateTime NOW;
 
@@ -41,6 +48,22 @@ class AccountAggregateTest {
                 .when(createAccountCommand)
                 .expectEvents(accountCreatedEvent, accountActivatedEvent);
     }
+    @Test
+    void giveNegativeBalance_whenCreateAccountCommand_thenShouldPublishAccountCreatedEvent() {
+        CreateAccountCommand createAccountCommand = new CreateAccountCommand(ACCOUNT_ID, -10000, "MAD");
+        AccountCreatedEvent accountCreatedEvent = new AccountCreatedEvent(createAccountCommand.getId(),
+                createAccountCommand.getInitialBalance(),
+                createAccountCommand.getCurrency(),
+                AccountStatus.CREATED,
+                NOW);
+        AccountActivatedEvent accountActivatedEvent = new AccountActivatedEvent(ACCOUNT_ID, AccountStatus.ACTIVATED);
+        fixture.givenNoPriorActivity()
+                .when(createAccountCommand)
+                .expectException(CannotCreateAccountException.class)
+                .expectExceptionMessage(Matchers.predicate(message -> ((String) message).contains(NEGATIVE_BALANCE)));
+
+    }
+
 
     @Test
     void givenCreditedEvent_whenCreditAccountCommand_thenShouldPublishAccountCreditedEvent() {
@@ -54,6 +77,20 @@ class AccountAggregateTest {
         fixture.given(accountCreditedEvent)
                 .when(creditAccountCommand)
                 .expectEvents(accountCreditedEvent);
+    }
+    @Test
+    void givenNegativeAmount_whenCreditAccountCommand_thenShouldPublishAccountCreditedEvent() {
+        LocalDateTime NOW = LocalDateTime.of(2022,6,15, 12,30,30);
+        CreditAccountCommand creditAccountCommand = new CreditAccountCommand(ACCOUNT_ID,-10000,"MAD");
+        AccountCreditedEvent accountCreditedEvent =new AccountCreditedEvent(
+                creditAccountCommand.getId(),
+                creditAccountCommand.getAmount(),
+                creditAccountCommand.getCurrency(),
+                NOW);
+        fixture.given(accountCreditedEvent)
+                .when(creditAccountCommand)
+                .expectException(NegativeAmountException.class)
+                .expectExceptionMessage(Matchers.predicate(message -> ((String) message).contains(NEGATIVE_AMOUNT)));
     }
 
     @Test
