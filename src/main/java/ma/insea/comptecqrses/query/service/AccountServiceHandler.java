@@ -21,6 +21,7 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.Clock;
 import java.util.List;
 
 @Service
@@ -32,7 +33,6 @@ public class AccountServiceHandler {
     private AccountRepository accountRepository;
     private OperationRepository operationRepository;
     private AccountsMapper accountsMapper;
-    private OperationsMapper operationsMapper;
 
     @EventHandler
     public void on(AccountCreatedEvent event){
